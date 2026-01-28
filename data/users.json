@@ -1,0 +1,9 @@
+[ {
+  "name" : "こうき",
+  "fromCity" : "荒尾市",
+  "toCity" : "福岡市",
+  "trainLine" : "鹿児島本線[大牟田～八代]",
+  "trainLines" : [ "鹿児島本線[大牟田～八代]", "西鉄天神大牟田線", "福岡市営箱崎線" ],
+  "email" : "maedakoki@i.gmobb.jp",
+  "trainLinesDisplay" : [ "鹿児島本線[大牟田～八代]", "西鉄天神大牟田線", "福岡市営箱崎線" ]
+} ]

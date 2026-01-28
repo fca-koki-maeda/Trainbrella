@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>路線詳細</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{--bg:#f5f6f8; --card:#e7ecff; --text:#111827; --gap:16px;}
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:22px 16px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .titlebar-left{display:flex; align-items:center; gap:8px;}
+    .brand{font-size:24px; font-weight:700; letter-spacing:.5px; color:var(--text); text-decoration:none;}
+    .subtitle{font-size:12px; color:#4b5563;}
+    .todaybtn{font-size:14px; text-decoration:none; background:#6aa9ff; border:1px solid #6aa9ff; padding:10px 16px; border-radius:10px; color:#0b1020; font-weight:700;}
+    .container{max-width:1100px; margin:0 auto; padding:var(--gap) 16px 90px;}
+    .card{background:var(--card); border:1px solid #c7d2fe; border-radius:16px; padding:16px; box-shadow:0 6px 18px rgba(17,24,39,.08);}
+    .card + .card{margin-top:var(--gap);}
+    .tabbar{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e5e7eb; display:flex; justify-content:space-around; padding:8px 6px;}
+    .tabbar a{color:#374151; text-decoration:none; font-size:12px; display:flex; flex-direction:column; align-items:center; gap:4px;}
+    .tabbar .icon{font-size:18px;}
+    .active{color:#3b82f6; font-weight:700;}
+    .linkbtn{display:inline-block; margin-top:8px; padding:10px 14px; background:#ffffff; border:1px solid #e5e7eb; border-radius:10px; text-decoration:none; color:#111827;}
+    .userbar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:8px 16px; font-size:12px; color:#4b5563;
+      display:flex; flex-wrap:wrap; gap:12px;
+    }
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+    <span class="subtitle">/ 路線詳細</span>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="container">
+  <div class="card" th:each="t : ${trainInfos}">
+    <p>路線: <strong th:text="${t.lineName}">-</strong></p>
+    <p>運行状況: <span th:text="${t.status}">-</span></p>
+    <a class="linkbtn" th:href="${t.url}" target="_blank">Yahoo!路線情報を開く</a>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a href="/"><span class="icon">🏠</span><span>トップ</span></a>
+  <a href="/weather"><span class="icon">☁️</span><span>天気詳細</span></a>
+  <a href="/train" class="active"><span class="icon">🚆</span><span>路線詳細</span></a>
+  <a href="/record"><span class="icon">📝</span><span>記録</span></a>
+  <a href="/user"><span class="icon">⚙️</span><span>ユーザー設定</span></a>
+</nav>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>過去日付で記録</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{--bg:#f5f6f8; --card:#e7ecff; --text:#111827; --muted:#4b5563; --gap:16px;}
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{background:#fff;border-bottom:1px solid #e5e7eb;padding:22px 16px;display:flex;align-items:center;justify-content:space-between;}
+    .titlebar-left{display:flex;align-items:center;gap:8px;}
+    .brand{font-size:24px;font-weight:700;letter-spacing:.5px;color:var(--text);text-decoration:none;}
+    .subtitle{font-size:12px;color:var(--muted);}
+    .todaybtn{font-size:14px;text-decoration:none;background:#6aa9ff;border:1px solid #6aa9ff;padding:10px 16px;border-radius:10px;color:#0b1020;font-weight:700;}
+    .userbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:8px 16px;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:12px;}
+    .wrap{max-width:720px;margin:var(--gap) auto;padding:var(--gap) 20px 90px;}
+    .card{background:var(--card);border:1px solid #c7d2fe;border-radius:16px;padding:16px;box-shadow:0 6px 18px rgba(17,24,39,.08);}
+    label{display:block;margin:10px 0 6px;color:var(--muted);}
+    input[type="text"], input[type="date"], input[type="time"]{width:100%;padding:10px;border-radius:10px;border:1px solid #c7d2fe;background:#fff;}
+    .btnrow{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
+    .chip{border:1px solid #c7d2fe; border-radius:999px; overflow:hidden; cursor:pointer;}
+    .chip input{display:none;}
+    .chip span{display:block; padding:8px 0; text-align:center; background:#fff; font-weight:700; font-size:13px;}
+    .chip input:checked + span{background:#6aa9ff; color:#0b1020;}
+    .actionbtn{width:100%; margin-top:12px; padding:12px 16px; border:none; border-radius:12px; background:#6aa9ff; color:#0b1020; font-weight:800; font-size:16px; display:block; text-align:center; text-decoration:none;}
+    .tabbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e5e7eb;display:flex;justify-content:space-around;padding:8px 6px;}
+    .tabbar a{color:#374151;text-decoration:none;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:4px;}
+    .tabbar .icon{font-size:18px;}
+    .active{color:#3b82f6;font-weight:700;}
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+    <span class="subtitle">/ 過去日付で記録</span>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <form method="post" action="/record">
+      <label>日付</label>
+      <input type="date" name="date" required>
+
+      <label>時刻</label>
+      <input type="time" name="time" required>
+
+      <label>行き/帰り</label>
+      <div class="btnrow">
+        <label class="chip"><input type="radio" name="type" value="行き" required><span>行き</span></label>
+        <label class="chip"><input type="radio" name="type" value="帰り" required><span>帰り</span></label>
+      </div>
+
+      <label>出発/到着</label>
+      <div class="btnrow">
+        <label class="chip"><input type="radio" name="action" value="出発" required><span>出発</span></label>
+        <label class="chip"><input type="radio" name="action" value="到着" required><span>到着</span></label>
+      </div>
+
+      <label>体調</label>
+      <div class="btnrow">
+        <label class="chip"><input type="radio" name="condition" value="良い"><span>良い</span></label>
+        <label class="chip"><input type="radio" name="condition" value="普通"><span>普通</span></label>
+        <label class="chip"><input type="radio" name="condition" value="悪い"><span>悪い</span></label>
+      </div>
+
+      <label>遅延</label>
+      <div class="btnrow">
+        <label class="chip"><input type="radio" name="delay" value="なし"><span>なし</span></label>
+        <label class="chip"><input type="radio" name="delay" value="多少"><span>多少</span></label>
+        <label class="chip"><input type="radio" name="delay" value="大幅"><span>大幅</span></label>
+      </div>
+
+      <label>メモ</label>
+      <input type="text" name="memo" placeholder="入力欄">
+
+      <button class="actionbtn" type="submit">記録</button>
+    </form>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a href="/"><span class="icon">🏠</span><span>トップ</span></a>
+  <a href="/weather"><span class="icon">☁️</span><span>天気詳細</span></a>
+  <a href="/train"><span class="icon">🚆</span><span>路線詳細</span></a>
+  <a href="/record" class="active"><span class="icon">📝</span><span>記録</span></a>
+  <a href="/user"><span class="icon">⚙️</span><span>ユーザー設定</span></a>
+</nav>
+</body>
+</html>

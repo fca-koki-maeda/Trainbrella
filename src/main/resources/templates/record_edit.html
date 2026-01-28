@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>記録編集</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{--bg:#f5f6f8; --card:#e7ecff; --text:#111827; --muted:#4b5563; --gap:16px;}
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{background:#ffffff; border-bottom:1px solid #e5e7eb; padding:22px 16px; display:flex; align-items:center; justify-content:space-between;}
+    .titlebar-left{display:flex; align-items:center; gap:8px;}
+    .brand{font-size:24px; font-weight:700; letter-spacing:.5px; color:var(--text); text-decoration:none;}
+    .subtitle{font-size:12px; color:var(--muted);}
+    .todaybtn{font-size:14px; text-decoration:none; background:#6aa9ff; border:1px solid #6aa9ff; padding:10px 16px; border-radius:10px; color:#0b1020; font-weight:700;}
+    .userbar{background:#ffffff; border-bottom:1px solid #e5e7eb; padding:8px 16px; font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:12px;}
+    .wrap{max-width:720px;margin:var(--gap) auto;padding:var(--gap) 20px 90px;}
+    .card{background:var(--card); border:1px solid #c7d2fe;border-radius:16px;padding:20px; box-shadow:0 6px 18px rgba(17,24,39,.08);}
+    label{display:block;margin:10px 0 6px;color:var(--muted);}
+    input{width:100%;padding:10px;border-radius:10px;border:1px solid #c7d2fe;background:#fff;color:var(--text);}
+    button{margin-top:16px;padding:10px 16px;border:none;border-radius:10px;background:#6aa9ff;color:#0b1020;font-weight:700;}
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+    <span class="subtitle">/ 記録編集</span>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <div><strong th:text="${record.dateTime != null ? record.dateTime : record.date}">-</strong></div>
+    <div th:if="${record.type != null}" th:text="${record.type + ' ' + record.action}">行き 出発</div>
+
+    <form method="post" action="/record/edit">
+      <input type="hidden" name="index" th:value="${index}">
+      <label>遅延</label><input name="delayed" th:value="${record.delayed}">
+      <label>体調</label><input name="condition" th:value="${record.condition}">
+      <label>メモ</label><input name="memo" th:value="${record.memo}">
+      <button type="submit">保存</button>
+    </form>
+  </div>
+</div>
+</body>
+</html>

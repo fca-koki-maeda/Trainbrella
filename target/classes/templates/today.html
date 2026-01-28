@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>本日の記録</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{--bg:#f5f6f8; --card:#e7ecff; --text:#111827; --muted:#4b5563; --accent:#6aa9ff; --gap:16px;}
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{background:#ffffff; border-bottom:1px solid #e5e7eb; padding:22px 16px; display:flex; align-items:center; justify-content:space-between;}
+    .titlebar-left{display:flex; align-items:center; gap:8px;}
+    .brand{font-size:24px; font-weight:700; letter-spacing:.5px; color:var(--text); text-decoration:none;}
+    .subtitle{font-size:12px; color:var(--muted);}
+    .todaybtn{font-size:14px; text-decoration:none; background:var(--accent); border:1px solid var(--accent); padding:10px 16px; border-radius:10px; color:#0b1020; font-weight:700;}
+    .userbar{background:#ffffff; border-bottom:1px solid #e5e7eb; padding:8px 16px; font-size:12px; color:var(--muted); display:flex; flex-wrap:wrap; gap:12px;}
+    .container{max-width:900px; margin:0 auto; padding:var(--gap) 16px 90px;}
+    .grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:var(--gap);}
+    .bigbtn{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      padding:24px 12px; border-radius:16px; text-decoration:none; color:#0b1020; font-weight:800;
+      background:#e7ecff; border:1px solid #c7d2fe; box-shadow:0 6px 18px rgba(17,24,39,.08);
+    }
+    .bigbtn span{font-size:14px; color:#4b5563; font-weight:600; margin-bottom:6px;}
+    .bigbtn strong{font-size:20px;}
+    .bigbtn .icon{font-size:22px; margin-bottom:6px;}
+    .bigbtn.done{opacity:.45; filter:grayscale(1);}
+    .tabbar{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e5e7eb; display:flex; justify-content:space-around; padding:8px 6px;}
+    .tabbar a{color:#374151; text-decoration:none; font-size:12px; display:flex; flex-direction:column; align-items:center; gap:4px;}
+    .tabbar .icon{font-size:18px;}
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+    <span class="subtitle">/ 本日の記録</span>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="container">
+  <div class="grid">
+    <a class="bigbtn" th:classappend="${goDeparted} ? ' done' : ''" href="/today/form?type=行き&action=出発">
+      <span class="icon">🏠</span><span>行き</span><strong>出発</strong>
+    </a>
+    <a class="bigbtn" th:classappend="${goArrived} ? ' done' : ''" href="/today/form?type=行き&action=到着">
+      <span class="icon">🏢</span><span>行き</span><strong>到着</strong>
+    </a>
+    <a class="bigbtn" th:classappend="${returnDeparted} ? ' done' : ''" href="/today/form?type=帰り&action=出発">
+      <span class="icon">🏢</span><span>帰り</span><strong>出発</strong>
+    </a>
+    <a class="bigbtn" th:classappend="${returnArrived} ? ' done' : ''" href="/today/form?type=帰り&action=到着">
+      <span class="icon">🏠</span><span>帰り</span><strong>到着</strong>
+    </a>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a href="/"><span class="icon">🏠</span><span>トップ</span></a>
+  <a href="/weather"><span class="icon">☁️</span><span>天気詳細</span></a>
+  <a href="/train"><span class="icon">🚆</span><span>路線詳細</span></a>
+  <a href="/record"><span class="icon">📝</span><span>記録</span></a>
+  <a href="/user"><span class="icon">⚙️</span><span>ユーザー設定</span></a>
+</nav>
+</body>
+</html>

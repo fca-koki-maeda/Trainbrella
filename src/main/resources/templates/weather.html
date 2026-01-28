@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>天気詳細</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{--bg:#f5f6f8; --card:#e7ecff; --text:#111827; --muted:#4b5563; --gap:16px;}
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:22px 16px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .titlebar-left{display:flex; align-items:center; gap:8px;}
+    .brand{font-size:24px; font-weight:700; letter-spacing:.5px; color:var(--text); text-decoration:none;}
+    .subtitle{font-size:12px; color:var(--muted);}
+    .todaybtn{
+      font-size:14px; text-decoration:none; background:#6aa9ff; border:1px solid #6aa9ff;
+      padding:10px 16px; border-radius:10px; color:#0b1020; font-weight:700;
+    }
+    .container{max-width:1100px; margin:0 auto; padding:var(--gap) 16px 90px;}
+    .card{background:var(--card); border:1px solid #c7d2fe; border-radius:16px; padding:16px; box-shadow:0 6px 18px rgba(17,24,39,.08);}
+    .title{font-weight:700; font-size:16px; margin:0 0 8px;}
+    .table{width:100%; border-collapse:collapse; font-size:14px; min-width:640px;}
+    .table th,.table td{border-bottom:1px solid #c7d2fe; padding:8px; text-align:left;}
+    .table-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+    .tabbar{position:fixed; left:0; right:0; bottom:0; background:#fff; border-top:1px solid #e5e7eb; display:flex; justify-content:space-around; padding:8px 6px;}
+    .tabbar a{color:#374151; text-decoration:none; font-size:12px; display:flex; flex-direction:column; align-items:center; gap:4px;}
+    .tabbar .icon{font-size:18px;}
+    .active{color:#3b82f6; font-weight:700;}
+    .section{margin:var(--gap) 0;}
+    .userbar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:8px 16px; font-size:12px; color:var(--muted);
+      display:flex; flex-wrap:wrap; gap:12px;
+    }
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+    <span class="subtitle">/ 天気詳細</span>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="container">
+  <div class="card section">
+    <p class="title">出発地の3時間天気（<span th:text="${fromWeather.city}">-</span>）</p>
+    <div class="table-wrap">
+      <table class="table">
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th th:each="h : ${fromWeather.hourly}" th:text="${h.time}">00:00</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>天気</th>
+          <td th:each="h : ${fromWeather.hourly}" th:text="${h.description}">晴れ</td>
+        </tr>
+        <tr>
+          <th>気温</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.temp}">0</span> ℃</td>
+        </tr>
+        <tr>
+          <th>湿度</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.humidity}">0</span> %</td>
+        </tr>
+        <tr>
+          <th>降水確率</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.pop}">0</span> %</td>
+        </tr>
+        <tr>
+          <th>雨量</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.rainAmount}">0</span> mm</td>
+        </tr>
+        <tr>
+          <th>風速</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.windSpeed}">0</span> m/s</td>
+        </tr>
+        <tr>
+          <th>体感温度</th>
+          <td th:each="h : ${fromWeather.hourly}"><span th:text="${h.feelsLike}">0</span> ℃</td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card section">
+    <p class="title">到着地の3時間天気（<span th:text="${toWeather.city}">-</span>）</p>
+    <div class="table-wrap">
+      <table class="table">
+      <thead>
+        <tr>
+          <th>項目</th>
+          <th th:each="h : ${toWeather.hourly}" th:text="${h.time}">00:00</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>天気</th>
+          <td th:each="h : ${toWeather.hourly}" th:text="${h.description}">晴れ</td>
+        </tr>
+        <tr>
+          <th>気温</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.temp}">0</span> ℃</td>
+        </tr>
+        <tr>
+          <th>湿度</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.humidity}">0</span> %</td>
+        </tr>
+        <tr>
+          <th>降水確率</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.pop}">0</span> %</td>
+        </tr>
+        <tr>
+          <th>雨量</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.rainAmount}">0</span> mm</td>
+        </tr>
+        <tr>
+          <th>風速</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.windSpeed}">0</span> m/s</td>
+        </tr>
+        <tr>
+          <th>体感温度</th>
+          <td th:each="h : ${toWeather.hourly}"><span th:text="${h.feelsLike}">0</span> ℃</td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a href="/"><span class="icon">🏠</span><span>トップ</span></a>
+  <a href="/weather" class="active"><span class="icon">☁️</span><span>天気詳細</span></a>
+  <a href="/train"><span class="icon">🚆</span><span>路線詳細</span></a>
+  <a href="/record"><span class="icon">📝</span><span>記録</span></a>
+  <a href="/user"><span class="icon">⚙️</span><span>ユーザー設定</span></a>
+</nav>
+</body>
+</html>

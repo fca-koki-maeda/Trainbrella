@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Trainbrella</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root{
+      --bg:#f5f6f8; --card:#e7ecff; --accent:#6aa9ff; --accent2:#8b5cf6;
+      --text:#111827; --muted:#4b5563; --warn:#d97706; --gap:16px;
+    }
+    *{box-sizing:border-box; font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--text);}
+    .titlebar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:22px 16px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand{font-size:24px; font-weight:700; letter-spacing:.5px; color:var(--text); text-decoration:none;}
+    .subtitle{font-size:12px; color:var(--muted);}
+    .userbar{
+      background:#ffffff; border-bottom:1px solid #e5e7eb;
+      padding:8px 16px; font-size:12px; color:var(--muted);
+      display:flex; flex-wrap:wrap; gap:12px;
+    }
+    .container{max-width:1100px; margin:0 auto; padding:var(--gap) 16px 90px;}
+    .grid{display:grid; gap:var(--gap);}
+    .grid-2{grid-template-columns:repeat(2, minmax(0,1fr));}
+    .grid-1{grid-template-columns:1fr;}
+    .card{background:var(--card); border:1px solid #c7d2fe; border-radius:16px; padding:16px; color:var(--text); box-shadow:0 6px 18px rgba(17,24,39,.08);}
+    .title{font-weight:700; font-size:16px; margin:0;}
+    .muted{color:var(--muted);}
+    .kpi{display:flex; align-items:center; gap:10px; font-size:22px; font-weight:700; margin-bottom:8px;}
+    .wx{font-size:22px;}
+    .tag{display:inline-block; padding:4px 10px; border-radius:999px; background:#eef2ff; color:#334155; font-size:12px;}
+    .title-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+    .status-warn{color:var(--warn);}
+    .section{margin:var(--gap) 0;}
+    .tabbar{
+      position:fixed; left:0; right:0; bottom:0;
+      background:#ffffff; border-top:1px solid #e5e7eb;
+      display:flex; justify-content:space-around; padding:8px 6px; z-index:10;
+    }
+    .tabbar a{
+      color:#374151; text-decoration:none; font-size:12px;
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+    }
+    .tabbar .icon{font-size:18px;}
+    .active{color:#3b82f6; font-weight:700;}
+    .umbrella-text{font-size:20px; font-weight:800;}
+    .titlebar{background:#ffffff; border-bottom:1px solid #e5e7eb; padding:22px 16px; display:flex; align-items:center; justify-content:space-between;}
+    .titlebar-left{display:flex; align-items:center; gap:8px;}
+    .todaybtn{
+      font-size:14px; text-decoration:none; background:#6aa9ff; border:1px solid #6aa9ff;
+      padding:10px 16px; border-radius:10px; color:#0b1020; font-weight:700;
+    }
+    .small{font-size:11px; color:var(--text);}
+    .line-item{margin-bottom:8px;}
+    .line-item:last-child{margin-bottom:0;}
+    .line-name{margin-bottom:4px; font-size:18px;}
+    .weather-desc{font-size:18px; font-weight:700; color:var(--text);}
+    .line-desc{margin:0;}
+    .risk-value{font-size:28px; font-weight:700;}
+  </style>
+</head>
+<body>
+<header class="titlebar">
+  <div class="titlebar-left">
+    <a class="brand" href="/">Trainbrella</a>
+  </div>
+  <a class="todaybtn" href="/today">本日の記録</a>
+</header>
+<div class="userbar">
+  <div>登録情報</div>
+  <div>名前：<span th:text="${user.name}">-</span></div>
+  <div>出発地：<span th:text="${user.fromCity}">-</span></div>
+  <div>到着地：<span th:text="${user.toCity}">-</span></div>
+  <div>路線名：<span th:text="${(user.trainLinesDisplay != null and !user.trainLinesDisplay.isEmpty()) ? #strings.listJoin(user.trainLinesDisplay, ' / ') : user.trainLine}">-</span></div>
+</div>
+
+<div class="container">
+
+  <div class="grid grid-2 section">
+    <div class="card">
+      <p class="title">遅延リスク</p>
+      <div class="kpi">
+        <span class="risk-value" th:text="${risk}">0</span>
+        <span class="muted">/ 100</span>
+      </div>
+    </div>
+    <div class="card">
+      <p class="title">傘アドバイス</p>
+      <div th:text="${umbrella}" class="status-warn umbrella-text">-</div>
+    </div>
+  </div>
+
+  <div class="grid grid-1 section">
+    <div class="card">
+      <p class="title">路線</p>
+      <div th:if="${trainInfos == null || trainInfos.isEmpty()}">路線取得失敗</div>
+      <div class="line-item" th:each="t : ${trainInfos}">
+        <div class="kpi line-name" th:text="${t.lineName}">-</div>
+        <div class="muted line-desc" th:text="${t.status}">-</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2 section">
+    <div class="card">
+      <div class="title-row">
+        <p class="title">出発地</p>
+        <span class="tag">実況</span>
+      </div>
+      <div class="kpi">
+        <span class="wx"
+          th:text="${
+            #strings.contains(fromWeather.description,'竜巻') ? '🌪️' :
+            (#strings.contains(fromWeather.description,'砂嵐') ? '🌪️' :
+            (#strings.contains(fromWeather.description,'砂') ? '🌪️' :
+            (#strings.contains(fromWeather.description,'ちり') ? '🌪️' :
+            (#strings.contains(fromWeather.description,'煙') ? '🌫️' :
+            (#strings.contains(fromWeather.description,'火山灰') ? '🌫️' :
+            (#strings.contains(fromWeather.description,'霧') ? '🌫️' :
+            (#strings.contains(fromWeather.description,'もや') ? '🌫️' :
+            (#strings.contains(fromWeather.description,'雷') ? '⛈️' :
+            (#strings.contains(fromWeather.description,'雷雨') ? '⛈️' :
+            (#strings.contains(fromWeather.description,'にわか雨') ? '🌦️' :
+            (#strings.contains(fromWeather.description,'小雨') ? '🌦️' :
+            (#strings.contains(fromWeather.description,'雨') ? '🌧️' :
+            (#strings.contains(fromWeather.description,'みぞれ') ? '🌨️' :
+            (#strings.contains(fromWeather.description,'にわか雪') ? '🌨️' :
+            (#strings.contains(fromWeather.description,'小雪') ? '🌨️' :
+            (#strings.contains(fromWeather.description,'大雪') ? '❄️' :
+            (#strings.contains(fromWeather.description,'雪') ? '❄️' :
+            (#strings.contains(fromWeather.description,'厚い雲') ? '☁️' :
+            (#strings.contains(fromWeather.description,'薄い雲') ? '🌤️' :
+            (#strings.contains(fromWeather.description,'雲が多い') ? '☁️' :
+            (#strings.contains(fromWeather.description,'曇りがち') ? '☁️' :
+            (#strings.contains(fromWeather.description,'曇り') ? '☁️' :
+            (#strings.contains(fromWeather.description,'くもり') ? '☁️' :
+            (#strings.contains(fromWeather.description,'曇') ? '☁️' :
+            (#strings.contains(fromWeather.description,'雲') ? '☁️' :
+            (#strings.contains(fromWeather.description,'快晴') ? '☀️' :
+            (#strings.contains(fromWeather.description,'晴天') ? '☀️' :
+            (#strings.contains(fromWeather.description,'雲ひとつない空') ? '☀️' :
+            (#strings.contains(fromWeather.description,'晴') ? '☀️' : '☀️')))))))))))))))))))))))))))))
+          }">☀️</span>
+        <span th:text="${fromWeather != null ? fromWeather.city : '出発地の天気取得失敗'}">-</span>
+      </div>
+      <div class="muted weather-desc" th:text="${fromWeather.description}">-</div>
+      <div class="small" th:text="${fromWeather.fetchedAt}">取得時刻</div>
+      <p>気温：<span th:text="${fromWeather.temp}">-</span> ℃</p>
+      <p>湿度：<span th:text="${fromWeather.humidity}">-</span> %</p>
+      <p>最低気温：<span th:text="${fromWeather.tempMin}">-</span> ℃</p>
+      <p>最高気温：<span th:text="${fromWeather.tempMax}">-</span> ℃</p>
+      <p>降水確率：<span th:text="${fromWeather.pop}">-</span> %</p>
+      <p>風速：<span th:text="${fromWeather.windSpeed}">-</span> m/s</p>
+    </div>
+
+    <div class="card">
+      <div class="title-row">
+        <p class="title">到着地</p>
+        <span class="tag">実況</span>
+      </div>
+      <div class="kpi">
+        <span class="wx"
+          th:text="${
+            #strings.contains(toWeather.description,'竜巻') ? '🌪️' :
+            (#strings.contains(toWeather.description,'砂嵐') ? '🌪️' :
+            (#strings.contains(toWeather.description,'砂') ? '🌪️' :
+            (#strings.contains(toWeather.description,'ちり') ? '🌪️' :
+            (#strings.contains(toWeather.description,'煙') ? '🌫️' :
+            (#strings.contains(toWeather.description,'火山灰') ? '🌫️' :
+            (#strings.contains(toWeather.description,'霧') ? '🌫️' :
+            (#strings.contains(toWeather.description,'もや') ? '🌫️' :
+            (#strings.contains(toWeather.description,'雷') ? '⛈️' :
+            (#strings.contains(toWeather.description,'雷雨') ? '⛈️' :
+            (#strings.contains(toWeather.description,'にわか雨') ? '🌦️' :
+            (#strings.contains(toWeather.description,'小雨') ? '🌦️' :
+            (#strings.contains(toWeather.description,'雨') ? '🌧️' :
+            (#strings.contains(toWeather.description,'みぞれ') ? '🌨️' :
+            (#strings.contains(toWeather.description,'にわか雪') ? '🌨️' :
+            (#strings.contains(toWeather.description,'小雪') ? '🌨️' :
+            (#strings.contains(toWeather.description,'大雪') ? '❄️' :
+            (#strings.contains(toWeather.description,'雪') ? '❄️' :
+            (#strings.contains(toWeather.description,'厚い雲') ? '☁️' :
+            (#strings.contains(toWeather.description,'薄い雲') ? '🌤️' :
+            (#strings.contains(toWeather.description,'雲が多い') ? '☁️' :
+            (#strings.contains(toWeather.description,'曇りがち') ? '☁️' :
+            (#strings.contains(toWeather.description,'曇り') ? '☁️' :
+            (#strings.contains(toWeather.description,'くもり') ? '☁️' :
+            (#strings.contains(toWeather.description,'曇') ? '☁️' :
+            (#strings.contains(toWeather.description,'雲') ? '☁️' :
+            (#strings.contains(toWeather.description,'快晴') ? '☀️' :
+            (#strings.contains(toWeather.description,'晴天') ? '☀️' :
+            (#strings.contains(toWeather.description,'雲ひとつない空') ? '☀️' :
+            (#strings.contains(toWeather.description,'晴') ? '☀️' : '☀️')))))))))))))))))))))))))))))
+          }">☀️</span>
+        <span th:text="${toWeather != null ? toWeather.city : '到着地の天気取得失敗'}">-</span>
+      </div>
+      <div class="muted weather-desc" th:text="${toWeather.description}">-</div>
+      <div class="small" th:text="${toWeather.fetchedAt}">取得時刻</div>
+      <p>気温：<span th:text="${toWeather.temp}">-</span> ℃</p>
+      <p>湿度：<span th:text="${toWeather.humidity}">-</span> %</p>
+      <p>最低気温：<span th:text="${toWeather.tempMin}">-</span> ℃</p>
+      <p>最高気温：<span th:text="${toWeather.tempMax}">-</span> ℃</p>
+      <p>降水確率：<span th:text="${toWeather.pop}">-</span> %</p>
+      <p>風速：<span th:text="${toWeather.windSpeed}">-</span> m/s</p>
+    </div>
+  </div>
+</div>
+
+<nav class="tabbar">
+  <a href="/" class="active"><span class="icon">🏠</span><span>トップ</span></a>
+  <a href="/weather"><span class="icon">☁️</span><span>天気詳細</span></a>
+  <a href="/train"><span class="icon">🚆</span><span>路線詳細</span></a>
+  <a href="/record"><span class="icon">📝</span><span>記録</span></a>
+  <a href="/user"><span class="icon">⚙️</span><span>ユーザー設定</span></a>
+</nav>
+</body>
+</html>
