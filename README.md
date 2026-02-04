@@ -1,7 +1,9 @@
 # Trainbrella
+WEBプログラミングⅡアプリ開発課題  （2026進級制作展展示作品）
 
 ## 環境変数の設定
 提出用のソースでは機密情報を含めないため、起動前に環境変数で値を渡します。  
+PowerShell などのシェル内で以下を実行してください。  
 Gmail は通常のパスワードではなく「アプリパスワード」を使用してください。
 
 ```powershell
@@ -18,10 +20,7 @@ $env:MAIL_SMTP_HOST="smtp.gmail.com"
 $env:MAIL_SMTP_PORT="587"
 ```
 
-
-
 ## 起動方法
-
 mvn clean spring-boot:run
 
 
